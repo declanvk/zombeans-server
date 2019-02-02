@@ -1,6 +1,7 @@
 from string import ascii_lowercase
 from random import choices
 from namespaces import ViewerNamespace, HostNamespace, PlayerNamespace
+import logging
 
 IDENTIFIER_LEN = 6
 
@@ -71,6 +72,12 @@ class Server:
 
     def generate_room_code(self):
         return ''.join(choices(ascii_lowercase, k=IDENTIFIER_LEN)).upper()
+
+    def join_room(self, room, sid, namespace):
+        self.socket_io.join_room(room, sid=sid, namespace=namespace)
+
+    def leave_room(self, room, sid, namespace):
+        self.socket_io.leave_room(room, sid=sid, namespace=namespace)
 
     def register(self, socket_io):
         self.socket_io = socket_io
@@ -152,6 +159,9 @@ class Server:
                 format(player_id, player_state))
 
         del self.players[player_id]
+
+    def register_player_join_request(self, player_id, room_number, user_name):
+        pass
 
 
 server = Server(HostNamespace, ViewerNamespace, PlayerNamespace)

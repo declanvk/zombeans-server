@@ -1,5 +1,5 @@
 from flask import request
-from flask_socketio import Namespace, emit, join_room, leave_room
+from flask_socketio import Namespace, emit
 
 from json import loads
 
@@ -135,3 +135,18 @@ class PlayerNamespace(Namespace):
 
     def broadcast_game_over(self, room_id):
         self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
+
+    def on_player_join_request(self, data):
+        payload = loads(data)
+        room_number = payload['room_number']
+        user_name = payload['user_name']
+        player_id = request.sid
+
+        self.parent.register_player_join_request(player_id, room_number, user_name)
+
+
+# Priority
+# 1. Player join request
+# 2. Start game request
+# 3. Game start (to player/viewer)
+#
