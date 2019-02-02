@@ -178,13 +178,17 @@ class Server:
 
         del self.players[player_id]
 
-    def register_request_game_view(viewer_id, room_code):
+    def register_request_game_view(self, viewer_id, room_code):
         host_id = self.lookup_host_by_room_code(room_code)
         if host_id is None:
             logger.info(
                 "Viewer attempted to view non-existent room (id: {}, room: {})".format(
                     viewer_id, room_code
                 )
+            )
+
+            self.viewer_namespace.send_game_view_response(
+                viewer_id, 'failure', 'Room {} does not exist.'.format(room_code)
             )
             return
 
@@ -194,6 +198,9 @@ class Server:
         host['viewers'].append(viewer_id)
 
         self.join_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
+
+        full_player_list = self.generate_room_code()
+        self.viewer_namespace.send_game_view_response(viewer_id, 'success', full_player_list)
 
     def register_player_join_request(self, player_id, room_code, user_name):
         player = self.players[player_id]
@@ -243,13 +250,7 @@ class Server:
 
         self.join_room(room_code, player_id, PLAYER_NS_ENDPOINT)
 
-        full_player_list = []
-        for other_player_id in host['players']:
-            full_player_list.append({
-                k: self.players[player_id].get(k, None)
-                for k in ('user_name', 'character')
-            })
-
+        full_player_list = self.generate_room_code()
         self.host_namespace.send_player_joined(host_id, full_player_list, user_name)
         self.player_namespace.send_player_join_response(
             player_id, 'success', {
@@ -296,6 +297,16 @@ class Server:
             if host_data['room_code'] == room_code:
                 return host_id
         return None
+
+    def generate_player_name_character_list(self):
+        full_player_list = []
+        for other_player_id in host['players']:
+            full_player_list.append({
+                k: self.players[player_id].get(k, None)
+                for k in ('user_name', 'character')
+            })
+
+        return full_player_list
 
 server = Server(HostNamespace, ViewerNamespace, PlayerNamespace)
 server.register(socketio)
