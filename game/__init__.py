@@ -68,6 +68,7 @@ class Game:
                 0.0
             )
         ]
+
         for line in static_lines:
             line.elasticity = 0.95
             line.friction = 0.9
@@ -79,7 +80,6 @@ class Game:
         else:
             self.players[id].current_accel_dirs.remove(action[0])
 
-    # [playerId:{position:point, velocity:point, isZombie:bool}]
     def tick(self):
         self.space.step(Game.TICK_TIME)
         data = dict()
@@ -95,15 +95,17 @@ class Game:
     def start(self):
         self.started = True
         self.players[1].shape.collision_type = Game.types["zombie"]
-        return {"width": self.width, "height": self.height, "player_radius": Player.radius}
+        return {"width": self.width, "height": self.height, "player_radius": Player.RADIUS}
+
 class Player:
-    radius = 25
+    RADIUS = 25
+
     def __init__(self, id, space, pos):
         self.id = id
         self.body = pymunk.Body(1)
         self.space = space
         self.body.position = pos
-        self.shape = pymunk.Circle(self.body, Player.radius)
+        self.shape = pymunk.Circle(self.body, Player.RADIUS)
         self.shape.density = 3
         self.space.add(self.body, self.shape)
         self.shape.collision_type = Game.TYPES["player"]

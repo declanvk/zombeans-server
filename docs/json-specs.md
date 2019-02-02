@@ -7,7 +7,10 @@ Sent from server to player to notify successful room join.
 {
     "pkt_name": "player_join_response",
     "status": "success" | "failure",
-    "aux_data": "" | "failure reason (string)"
+    "aux_data": {
+        "room_code": "room code (string)",
+        "character": "character ident (number)"
+    } | "failure reason (string)"
 }
 ```
 
