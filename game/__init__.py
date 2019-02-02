@@ -1,20 +1,45 @@
 import pymunk
+from enum import Enum
+
+class Direction(Enum):
+    UP = 0b0001
+    DOWN = 0b0010
+    LEFT = 0b0100
+    RIGHT = 0b1000
+
+    @staticmethod
+    def mask(num):
+        return (
+            Direction.UP.value | Direction.DOWN.value | Direction.LEFT.value
+            | Direction.RIGHT.value
+        ) & num
+
+    @staticmethod
+    def check(num, variant):
+        return (Direction.mask(num) & variant.value) == variant.value
+
+class KeyAction(Enum):
+    PRESSED = 0b0_0000
+    RELEASED = 0b1_0000
+
+    @staticmethod
+    def mask(num):
+        return (KeyAction.PRESSED.value | KeyAction.RELEASED.value) & num
+
+class PlayerType(Enum):
+    NORMAL = 1
+    ZOMBIE = 2
+    GOD = 4
+
+    @staticmethod
+    def mask(num):
+        return (PlayerType.NORMAL.value | PlayerType.ZOMBIE.value | PlayerType.GOD.value) & num
 
 class Game:
-    TYPES = {"player": 1, "zombie": 2}
-    CONTROL = {
-        "w_pressed": 1,
-        "w_released": 5,
-        "a_pressed": 2,
-        "a_released": 6,
-        "s_pressed": 3,
-        "s_released": 7,
-        "d_pressed": 4,
-        "d_released": 8
-    }
     MAX_VELOCITY = 5
     ACCELERATION = 1
     TICK_TIME = .1
+    MAX_TICKS = 600
 
     def __init__(self, width=5000.0, height=5000.0):
 
@@ -26,24 +51,31 @@ class Game:
         self.space = pymunk.Space()
         self.add_static_scenery()
         self.zombie_collision_handler = self.space.add_collision_handler(
-            Game.TYPES["player"], Game.TYPES["zombie"]
+            PlayerType.NORMAL.value, PlayerType.ZOMBIE.value
         )
-        self.started = False
-        self.ended = False
+        self.running = False
+        self.tick_count = 0
 
         def turn_zombie(arbiter, space, data):
-            print("here")
             player = self.players[arbiter.shapes[0].id]
-            player.shape.collision_type = Game.TYPES["zombie"]
-            ended = True
-            for player in self.players.values():
-                if player.shape.collision_type == Game.TYPES["player"]:
-                    ended = False
-            self.ended = ended
+            player.shape.collision_type = PlayerType.ZOMBIE.value
+
             return True
 
         self.zombie_collision_handler.begin = turn_zombie
         self.space.damping = 0.1
+
+    def is_ended_with_winner(self):
+        zombie_win_condition = all(
+            player.shape.collision_type == PlayerType.NORMAL.value for player in self.players.values()
+        )
+        player_win_condition = self.tick_count > Game.MAX_TICKS
+        if zombie_win_condition:
+            return True, PlayerType.ZOMBIE.value
+        elif player_win_condition:
+            return True, PlayerType.NORMAL.value
+        else:
+            return False, None
 
     def add_player(self, id):
         self.players[id] = Player(id, self.space, self.starting_positions.pop())
@@ -74,27 +106,39 @@ class Game:
             line.friction = 0.9
         self.space.add(static_lines)
 
-    def input(self, id, action):
-        if Game.CONTROL[action] <= 4:
-            self.players[id].current_accel_dirs.add(action[0])
-        else:
-            self.players[id].current_accel_dirs.remove(action[0])
+    def input(self, id, key, action):
+        self.players[id].apply_input(key, action)
 
-    def tick(self):
-        self.space.step(Game.TICK_TIME)
+    def collect_render_data(self):
         data = dict()
         for player in self.players.items():
-            data[player[0]] = dict()
-            data[player[0]]["position"] = dict()
-            data[player[0]]["position"].x = player[1].body.position[0]
-            data[player[0]]["position"].y = player[1].body.position[1]
             self.space.reindex_shapes_for_body(player[1].body)
-            data[player[0]]["isZombie"] = player[1].shape.collision_type == Game.TYPES["zombie"]
+            data[player[0]] = {
+                'position': { 'x': player[1].body.position[0], 'y': player[1].body.position[1] },
+                'isZombie': player[1].shape.collision_type == PlayerType.ZOMBIE.value
+            }
+
+        return data
+
+    def tick(self):
+        if not self.running:
+            return None, True
+
+        self.tick_count += 1
+        self.space.step(Game.TICK_TIME)
+        data = self.collect_render_data()
+
+        game_over, winner = self.is_ended_with_winner()
+        if game_over:
+            self.running = False
+            return data, winner
+        else:
+            return data, None
+
         return data, self.ended
 
     def start(self):
-        self.started = True
-        self.players[1].shape.collision_type = Game.types["zombie"]
+        self.running = True
         return {"width": self.width, "height": self.height, "player_radius": Player.RADIUS}
 
 class Player:
@@ -108,20 +152,32 @@ class Player:
         self.shape = pymunk.Circle(self.body, Player.RADIUS)
         self.shape.density = 3
         self.space.add(self.body, self.shape)
-        self.shape.collision_type = Game.TYPES["player"]
-        self.current_accel_dirs = set()
+        self.shape.collision_type = PlayerType.NORMAL.value
+        self.current_accel_dirs = 0
         self.shape.id = id
 
         def velocity_cb(body, gravity, damping, dt):
             velocity_vector = [0, 0]
-            if body.velocity[0] < Game.MAX_VELOCITY and "d" in self.current_accel_dirs:
+            if body.velocity[0] < Game.MAX_VELOCITY and Direction.check(self.current_accel_dirs,
+                                                                        Direction.RIGHT):
                 velocity_vector[0] = min(Game.MAX_VELOCITY, body.velocity[0] + Game.ACCELERATION)
-            if body.velocity[0] > -Game.MAX_VELOCITY and "a" in self.current_accel_dirs:
+            if body.velocity[0] > -Game.MAX_VELOCITY and Direction.check(self.current_accel_dirs,
+                                                                         Direction.LEFT):
                 velocity_vector[0] = max(-Game.MAX_VELOCITY, body.velocity[0] - Game.ACCELERATION)
-            if body.velocity[1] < Game.MAX_VELOCITY and "w" in self.current_accel_dirs:
+            if body.velocity[1] < Game.MAX_VELOCITY and Direction.check(self.current_accel_dirs,
+                                                                        Direction.UP):
                 velocity_vector[1] = min(Game.MAX_VELOCITY, body.velocity[1] + Game.ACCELERATION)
-            if body.velocity[1] > -Game.MAX_VELOCITY and "s" in self.current_accel_dirs:
+            if body.velocity[1] > -Game.MAX_VELOCITY and Direction.check(self.current_accel_dirs,
+                                                                         Direction.DOWN):
                 velocity_vector[1] = max(-Game.MAX_VELOCITY, body.velocity[1] - Game.ACCELERATION)
             body.velocity = velocity_vector
 
         self.body.velocity_func = velocity_cb
+
+    def apply_input(self, key, action):
+        if action == KeyAction.PRESSED:
+            self.current_accel_dirs |= key.value
+        elif action == KeyAction.RELEASED:
+            self.current_accel_dirs &= ~key.value
+        else:
+            raise TypeError("'action' param was not of KeyAction type", action)
