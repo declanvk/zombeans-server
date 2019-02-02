@@ -115,9 +115,13 @@ Sent from server to all viewers
 ```json
 {
     "pkt_name": "game_tick",
-    "player_pos_data": ({player_id: 
-                         {'position':{x:num,y:num}, 'isZombie': bool}}, 
-                         True)
+    "player_pos_data": [{"player_id": 
+                            { 
+                                "position":{"x":0,"y":0}, 
+                                "isZombie":false
+                            }
+                         }, 
+                         true]
 }
 ```
 
