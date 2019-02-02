@@ -19,7 +19,6 @@ WEBSITE_DIR="${SCRIPTS_DIR}/../website"
 rm -r $SCRIPTS_DIR/../static/
 cp -R $WEBSITE_DIR/dist static/
 
-git push heroku-dev release:master
 git push heroku release:master
 
 git checkout master

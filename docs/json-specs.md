@@ -52,6 +52,7 @@ Sent from player to server when a button state changes
 ```json
 {
     "pkt_name": "make_move",
+    "origin": "normal" | "god",
     "action": {
         "key": "up" | "down" | "left" | "right",
         "state": "pressed" | "released"

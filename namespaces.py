@@ -135,7 +135,9 @@ class PlayerNamespace(Namespace):
 
         self.parent.register_player_join_request(player_id, room_code, user_name)
 
-# Priority
-# 2. Start game request
-# 3. Game start (to player/viewer)
-#
+    def on_make_move(self, payload):
+        player_id = request.sid
+        origin = payload['origin']
+        action = payload['action']
+
+        self.parent.register_make_move(player_id, origin, action)
