@@ -1,6 +1,6 @@
 
 ## Room Code (1)
-Sent from server to web client as soon as socket is opened
+Sent from server to host as soon as socket is opened
 
 ```json
 {
@@ -10,7 +10,7 @@ Sent from server to web client as soon as socket is opened
 ```
 
 ## Player Join Request (2)
-Sent from mobile client to server when user types in code/name.
+Sent from player to server when user types in code/name.
 
 ```json
 {
@@ -21,7 +21,7 @@ Sent from mobile client to server when user types in code/name.
 ```
 
 ## Player Join Response (3)
-Sent from server to mobile to notify successful room join.
+Sent from server to player to notify successful room join.
 
 ```json
 {
@@ -37,7 +37,7 @@ Sent from server to mobile to notify successful room join.
 
 
 ## Player Joined (4)
-Sent from server to web client when a player joins. Packet include ALL currently joined players.
+Sent from server to host when a player joins. Packet includes ALL currently joined players.
 
 ```json
 {
@@ -51,7 +51,7 @@ Sent from server to web client when a player joins. Packet include ALL currently
 ```
 
 ## Request Game Start (5)
-Sent from web client to server to start game
+Sent from host to server to start game
 
 ```json
 {
@@ -60,7 +60,7 @@ Sent from web client to server to start game
 ```
 
 ## Game Starting (6)
-Sent from server to mobile client and web client when the game starts
+Sent from server to viewers and players
 
 ```json
 {
@@ -69,7 +69,7 @@ Sent from server to mobile client and web client when the game starts
 ```
 
 ## Make Move (7)
-Sent from mobile client to server when a button state changes
+Sent from player to server when a button state changes
 
 ```json
 {
