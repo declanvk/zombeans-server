@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, send_from_directory, request
 from flask_socketio import SocketIO, Namespace, emit, join_room, leave_room
 from os import getenv
