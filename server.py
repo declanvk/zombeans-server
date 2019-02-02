@@ -122,13 +122,13 @@ class Server:
                 self.leave_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
             self.player_namespace.broadcast_game_over(room_code)
-            logger.warn(
+            logger.warning(
                 "Host disconnected while attending to game (id: {}, room: {})".format(
                     host_id, room_code
                 )
             )
         else:
-            logger.warn(
+            logger.warning(
                 "Host disconnected with invalid state (id: {}, state: {})".format(
                     host_id, game_state
                 )
@@ -159,24 +159,41 @@ class Server:
         player_state = player['state']
         game_host = player['game_host']
 
-        if (player_state == PLAYER_STATE_WAITING_GAME_START
-            ) or (player_state == PLAYER_STATE_IN_GAME):
+        if (player_state == PLAYER_STATE_WAITING_GAME_START) or (
+                player_state == PLAYER_STATE_IN_GAME):
             self.hosts[game_host]['players'].remove(player_id)
             self.leave_room(self.hosts[game_host]['room_code'], player_id, PLAYER_NS_ENDPOINT)
 
-            logger.warn(
+            logger.warning(
                 "Player disconnected while game was running (id: {}, game: {})".format(
                     player_id, game_host
                 )
             )
         else:
-            logger.warn(
+            logger.warning(
                 "Player disconnected with invalid state (id: {}, state: {})".format(
                     player_id, player_state
                 )
             )
 
         del self.players[player_id]
+
+    def register_request_game_view(viewer_id, room_code):
+        host_id = self.lookup_host_by_room_code(room_code)
+        if host_id is None:
+            logger.info(
+                "Viewer attempted to view non-existent room (id: {}, room: {})".format(
+                    viewer_id, room_code
+                )
+            )
+            return
+
+        viewer = self.viewers[viewer_id]
+        viewer['room_code'] = host_id
+        host = self.hosts[host_id]
+        host['viewers'].append(viewer_id)
+
+        self.join_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
     def register_player_join_request(self, player_id, room_code, user_name):
         player = self.players[player_id]
@@ -222,21 +239,29 @@ class Server:
         player['state'] = PLAYER_STATE_WAITING_GAME_START
         player['game_host'] = host_id
         player['user_name'] = user_name
-        character = len(host['players']) - 1
+        player['character'] = len(host['players']) - 1
 
         self.join_room(room_code, player_id, PLAYER_NS_ENDPOINT)
-        self.host_namespace.send_player_joined(host_id, host['players'], user_name)
+
+        full_player_list = []
+        for other_player_id in host['players']:
+            full_player_list.append({
+                k: self.players[player_id].get(k, None)
+                for k in ('user_name', 'character')
+            })
+
+        self.host_namespace.send_player_joined(host_id, full_player_list, user_name)
         self.player_namespace.send_player_join_response(
             player_id, 'success', {
                 'room_code': room_code,
-                'character': character
+                'character': player['character']
             }
         )
 
     def register_request_start_game(self, host_id):
         host = self.hosts[host_id]
         room_code = host['room_code']
-        if len(host['players']) > MIN_PLAYERS_PER_ROOM:
+        if len(host['players']) >= MIN_PLAYERS_PER_ROOM:
             host['game_state'] = GAME_STATE_RUNNING
 
             for player_id in host['players']:
@@ -261,7 +286,7 @@ class Server:
 
             logger.info("Host started game. (id: {}, room: {})".format(host_id, room_code))
         else:
-            logger.warn(
+            logger.warning(
                 "Host attempted to start game with insufficient player (id: {}, room: {}, num players: {})"
                 .format(host_id, host['room_code'], len(host['players']))
             )

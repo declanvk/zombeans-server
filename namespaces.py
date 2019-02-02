@@ -94,6 +94,12 @@ class ViewerNamespace(Namespace):
             room=viewer_id
         )
 
+    def on_request_game_view(self, payload):
+        viewer_id = request.sid
+        room_code = payload['room_code']
+
+        self.parent.register_request_game_view(viewer_id, room_code)
+
 class PlayerNamespace(Namespace):
     def __init__(self, *args, **kwargs):
         super(PlayerNamespace,
