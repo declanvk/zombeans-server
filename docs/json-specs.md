@@ -102,6 +102,7 @@ Sent from server to viewers
 ```json
 {
     "pkt_name": "game_starting",
+    "board_description": { "some object describing the board" }
 }
 ```
 
