@@ -52,7 +52,12 @@ Sent from player to server when a button state changes
 ```json
 {
     "pkt_name": "make_move",
-    "move_data": "???"
+    "action": {
+        "key": "up" | "down" | "left" | "right",
+        "state": "pressed" | "released"
+    } | {
+        "code": "some identifying string for god moves"
+    }
 }
 ```
 
@@ -102,10 +107,10 @@ Sent from server to viewers
 {
     "pkt_name": "game_starting",
     "board_description": {
-                            "width":num, 
-                            "height":num, 
+                            "width":num,
+                            "height":num,
                             "player_radius":num,
-                          }
+                         }
 }
 ```
 
@@ -115,12 +120,12 @@ Sent from server to all viewers
 ```json
 {
     "pkt_name": "game_tick",
-    "player_pos_data": [{"player_id": 
-                            { 
-                                "position":{"x":0,"y":0}, 
+    "player_pos_data": [{"player_id":
+                            {
+                                "position":{"x":0,"y":0},
                                 "isZombie":false
                             }
-                         }, 
+                         },
                          true]
 }
 ```
