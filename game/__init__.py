@@ -9,12 +9,13 @@ class Game:
                "d_pressed": 4, "d_released": 8}
     max_velocity = 5
     acceleration = 1
-    friction = .3
     tick_time = .1
 
     def __init__(self, max_players = 8, min_players = 4, width = 5000.0, height = 5000.0):
 
-        self.action_buffer = dict()
+        self.starting_positions = [(-100, 0), (0, -100), (10, 0), (50, 0),
+                                   (50, 50), (-50, -50), (-50, 0), (0, -50),
+                                   (0, 40), (0, 10)]
         self.max_players = max_players
         self.min_players = min_players
         self.players = dict()
@@ -41,11 +42,12 @@ class Game:
         self.space.damping = 0.1
 
     def add_player(self, id):
-        self.players[id] = Player(id, self.space)
+        self.players[id] = Player(id, self.space, self.starting_positions.pop())
 
     def add_static_scenery(self):
         static_body = self.space.static_body
-        static_lines = [pymunk.Segment(static_body, (self.width/2, self.height/2), (self.width/2, -self.height/2), 0.0),
+        static_lines = [pymunk.Segment(static_body, (self.width/2, self.height/2),
+                                       (self.width/2, -self.height/2), 0.0),
                         pymunk.Segment(static_body, (self.width / 2, -self.height/2),
                                        (-self.width / 2, -self.height / 2), 0.0),
                         pymunk.Segment(static_body, (-self.width / 2, -self.height / 2),
@@ -83,12 +85,12 @@ class Game:
 
 class Player:
 
-    def __init__(self, id, space):
+    def __init__(self, id, space, pos):
         self.id = id
         self.body = pymunk.Body(1)
         self.space = space
-        self.body.position = 100, 100 + 11 * id
-        self.shape = pymunk.Circle(self.body, 5.0)
+        self.body.position = pos
+        self.shape = pymunk.Circle(self.body, 10.0)
         self.shape.density = 3
         self.space.add(self.body, self.shape)
         self.shape.collision_type = Game.types["player"]
