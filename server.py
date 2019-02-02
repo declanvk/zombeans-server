@@ -89,6 +89,7 @@ class Server:
         self.socket_io.on_namespace(self.player_namespace)
 
     def register_host_connect(self, host_id):
+        logger.info("New host connected (id: {})".format(host_id))
         room_code = self.generate_room_code()
 
         self.hosts[host_id] = {
@@ -128,25 +129,31 @@ class Server:
                 )
             )
         else:
-            logger.warning(
-                "Host disconnected (id: {}, state: {})".format(
-                    host_id, game_state
-                )
-            )
+            logger.info("Host disconnected (id: {}, state: {})".format(host_id, game_state))
 
         del self.hosts[host_id]
 
     def register_viewer_connect(self, viewer_id):
+        logger.info("New viewer connected (id: {})".format(viewer_id))
+
         self.viewers[viewer_id] = {'room_code': None}
 
     def register_viewer_disconnect(self, viewer_id):
         room_code = self.viewers[viewer_id]['room_code']
         if room_code is not None:
             self.leave_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
-
+            logger.info(
+                "New viewer disconnected and left room (id: {}, room: {})".format(
+                    viewer_id, room_code
+                )
+            )
+        else:
+            logger.info("Viewer disconnected (id: {})".format(viewer_id))
         del self.viewers[viewer_id]
 
     def register_player_connect(self, player_id):
+        logger.info("New player connected (id: {})".format(player_id))
+
         self.players[player_id] = {
             'user_name': None,
             'character': None,
@@ -170,11 +177,7 @@ class Server:
                 )
             )
         else:
-            logger.warning(
-                "Player disconnected (id: {}, state: {})".format(
-                    player_id, player_state
-                )
-            )
+            logger.info("Player disconnected (id: {}, state: {})".format(player_id, player_state))
 
         del self.players[player_id]
 
@@ -201,6 +204,8 @@ class Server:
 
         full_player_list = self.generate_player_name_character_list(host)
         self.viewer_namespace.send_game_view_response(viewer_id, 'success', full_player_list)
+
+        logger.info("Viewer joined room (id: {}, room: {})".format(viewer_id, room_code))
 
     def register_player_join_request(self, player_id, room_code, user_name):
         player = self.players[player_id]
@@ -248,7 +253,7 @@ class Server:
         player['state'] = PLAYER_STATE_WAITING_GAME_START
         player['game_host'] = host_id
         player['user_name'] = user_name
-        player['character'] = len(host['players']) - 1
+        character = player['character'] = len(host['players']) - 1
 
         self.join_room(room_code, player_id, PLAYER_NS_ENDPOINT)
 
@@ -257,8 +262,13 @@ class Server:
         self.player_namespace.send_player_join_response(
             player_id, 'success', {
                 'room_code': room_code,
-                'character': player['character']
+                'character': character
             }
+        )
+        logger.info(
+            'Player joined room (id: {}, room: {}, user_name: {}, character: {})'.format(
+                player_id, room_code, user_name, character
+            )
         )
 
     def register_request_start_game(self, host_id):
