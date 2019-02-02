@@ -1,8 +1,6 @@
 from flask import request
 from flask_socketio import Namespace, emit
 
-from json import loads
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,12 +9,9 @@ logger.setLevel(logging.DEBUG)
 # Namesapces:
 #   - Manage types of clients/connections
 #   - functions are of two types:
-#       - on_"event type": this type of function is
-#         used to receive message/events
-#       - send_"event type": this type of function
-#         is used to send messages/events to a single entity
-#       - broadcast_"event type": this type of function
-#         is used to send messages/events to a group of entities
+#       - on_"event type": this type of function is used to receive message/events
+#       - send_"event type": this type of function is used to send messages/events to a single entity
+#       - broadcast_"event type": this type of function is used to send messages/events to a group of entities
 
 
 class HostNamespace(Namespace):
@@ -53,6 +48,11 @@ class HostNamespace(Namespace):
             },
             room=host_id)
 
+    def on_request_start_game(self, data):
+        host_id = request.sid
+        self.parent.register_request_start_game(host_id)
+
+
 class ViewerNamespace(Namespace):
     def __init__(self, *args, **kwargs):
         super(ViewerNamespace, self).__init__(
@@ -70,8 +70,8 @@ class ViewerNamespace(Namespace):
     def on_disconnect(self):
         self.parent.register_viewer_disconnect(request.sid)
 
-    def broadcast_game_starting(self, room_id):
-        self.emit('game_starting', {'pkt_name': 'game_starting'}, room=room_id)
+    def broadcast_game_starting(self, room_id, board_description):
+        self.emit('game_starting', {'pkt_name': 'game_starting', 'board_description': board_description}, room=room_id)
 
     def broadcast_game_tick(self, room_id, player_pos_data):
         self.emit(
@@ -124,8 +124,7 @@ class PlayerNamespace(Namespace):
     def broadcast_game_over(self, room_id):
         self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
 
-    def on_player_join_request(self, data):
-        payload = loads(data)
+    def on_player_join_request(self, payload):
         room_code = payload['room_code']
         user_name = payload['user_name']
         player_id = request.sid
