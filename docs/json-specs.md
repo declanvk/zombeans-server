@@ -122,8 +122,7 @@ Sent from server to view in response to game view request
 {
     "pkt_name": "game_view_response",
     "view_status": "success" | "failure",
-    "failure_reason": "failure reason (string, conditional on failure)",
-    "players": [ // conditional on the success of the view request
+    "view_status_data": "failure reason (string, conditional on failure)" | [ // array of user data
         {"user_name": "user 1 name (string)", "character": "character name (string)"},
         {"user_name": "user 2 name (string)", "character": "character name (string)"}
     ],
