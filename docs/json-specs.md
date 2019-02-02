@@ -1,24 +1,4 @@
-
-## Room Code (1)
-Sent from server to host as soon as socket is opened
-
-```json
-{
-    "pkt_name": "room_code",
-    "room_code": "room code (string)"
-}
-```
-
-## Player Join Request (2)
-Sent from player to server when user types in code/name.
-
-```json
-{
-    "pkt_name": "player_join_request",
-    "room_number": "room number (string)",
-    "user_name": "user name (string)",
-}
-```
+# From Server to Player
 
 ## Player Join Response (3)
 Sent from server to player to notify successful room join.
@@ -35,6 +15,59 @@ Sent from server to player to notify successful room join.
 }
 ```
 
+## Game Starting (6)
+Sent from server to players
+
+```json
+{
+    "pkt_name": "game_starting",
+}
+```
+
+# Game Over (10)
+Sent from server to players to notify game end
+
+```json
+{
+    "pkt_name": "game_over",
+    "game_end_data": "???"
+}
+```
+
+# To Server from Player
+
+## Player Join Request (2)
+Sent from player to server when user types in code/name.
+
+```json
+{
+    "pkt_name": "player_join_request",
+    "room_number": "room number (string)",
+    "user_name": "user name (string)",
+}
+```
+
+## Make Move (7)
+Sent from player to server when a button state changes
+
+```json
+{
+    "pkt_name": "make_move",
+    "move_data": "???"
+}
+```
+
+# From Server to Host
+
+## Room Code (1)
+Sent from server to host as soon as socket is opened
+
+```json
+{
+    "pkt_name": "room_code",
+    "room_code": "room code (string)"
+}
+```
 
 ## Player Joined (4)
 Sent from server to host when a player joins. Packet includes ALL currently joined players.
@@ -50,6 +83,8 @@ Sent from server to host when a player joins. Packet includes ALL currently join
 }
 ```
 
+# To Server From Host
+
 ## Request Game Start (5)
 Sent from host to server to start game
 
@@ -59,22 +94,14 @@ Sent from host to server to start game
 }
 ```
 
+# From Server To Viewer
+
 ## Game Starting (6)
-Sent from server to viewers and players
+Sent from server to viewers
 
 ```json
 {
     "pkt_name": "game_starting",
-}
-```
-
-## Make Move (7)
-Sent from player to server when a button state changes
-
-```json
-{
-    "pkt_name": "make_move",
-    "move_data": "???"
 }
 ```
 
@@ -88,21 +115,28 @@ Sent from server to all viewers
 }
 ```
 
-## Become Zombie (9)
-Sent from server to player to inform them they've become a zombie
+## Request Game View Response (?)
+Sent from server to view in response to game view request
 
 ```json
 {
-    "pkt_name": "become_zombie"
+    "pkt_name": "game_view_response",
+    "view_status": "success" | "failure",
+    "failure_reason": "failure reason (string, conditional on failure)",
+    "players": [ // conditional on the success of the view request
+        {"user_name": "user 1 name (string)", "character": "character name (string)"},
+        {"user_name": "user 2 name (string)", "character": "character name (string)"}
+    ],
 }
 ```
 
-## Game Over (10)
-Sent from server to players to notify game end
+# To Server From Viewer
+
+## Request Game View (?)
 
 ```json
 {
-    "pkt_name": "become_zombie",
-    "game_end_data": "???"
+    "pkt_name": "request_game_view",
+    "room_code": "room code (string)"
 }
 ```
