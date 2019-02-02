@@ -101,7 +101,11 @@ Sent from server to viewers
 ```json
 {
     "pkt_name": "game_starting",
-    "board_description": { "some object describing the board" }
+    "board_description": {
+                            "width":num, 
+                            "height":num, 
+                            "player_radius":num,
+                          }
 }
 ```
 
@@ -111,7 +115,9 @@ Sent from server to all viewers
 ```json
 {
     "pkt_name": "game_tick",
-    "player_pos_data": ["???"]
+    "player_pos_data": ({player_id: 
+                         {'position':{x:num,y:num}, 'isZombie': bool}}, 
+                         True)
 }
 ```
 
