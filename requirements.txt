@@ -1,0 +1,5 @@
+eventlet==0.24.1
+Flask==1.0.2
+Flask-SocketIO==3.0.2
+gunicorn==19.9.0
+pymunk==5.4.2
