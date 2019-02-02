@@ -94,6 +94,12 @@ class ViewerNamespace(Namespace):
             room=viewer_id
         )
 
+    def on_request_game_view(self, payload):
+        viewer_id = request.sid
+        room_code = payload['room_code']
+
+        self.parent.register_request_game_view(viewer_id, room_code)
+
 class PlayerNamespace(Namespace):
     def __init__(self, *args, **kwargs):
         super(PlayerNamespace,
@@ -135,7 +141,9 @@ class PlayerNamespace(Namespace):
 
         self.parent.register_player_join_request(player_id, room_code, user_name)
 
-# Priority
-# 2. Start game request
-# 3. Game start (to player/viewer)
-#
+    def on_make_move(self, payload):
+        player_id = request.sid
+        origin = payload['origin']
+        action = payload['action']
+
+        self.parent.register_make_move(player_id, origin, action)
