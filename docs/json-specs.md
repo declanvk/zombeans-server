@@ -6,12 +6,8 @@ Sent from server to player to notify successful room join.
 ```json
 {
     "pkt_name": "player_join_response",
-    "room_number": "room number (string)",
-    "user_name": "user name (string)",
-    "join_status": {
-       "status": "success" | "failure",
-       "failure_reason": "failure reason (string)"
-    }
+    "status": "success" | "failure",
+    "aux_data": "" | "failure reason (string)"
 }
 ```
 
@@ -42,7 +38,7 @@ Sent from player to server when user types in code/name.
 ```json
 {
     "pkt_name": "player_join_request",
-    "room_number": "room number (string)",
+    "room_code": "room code (string)",
     "user_name": "user name (string)",
 }
 ```

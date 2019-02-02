@@ -53,7 +53,6 @@ class HostNamespace(Namespace):
             },
             room=host_id)
 
-
 class ViewerNamespace(Namespace):
     def __init__(self, *args, **kwargs):
         super(ViewerNamespace, self).__init__(
@@ -110,23 +109,12 @@ class PlayerNamespace(Namespace):
     def on_disconnect(self):
         self.parent.register_player_disconnect(request.sid)
 
-    def send_player_join_response(self,
-                                  player_id,
-                                  room_number,
-                                  user_name,
-                                  join_status,
-                                  failure_reason=None):
+    def send_player_join_response(self, player_id, status, aux_data):
         self.emit(
             'player_join_response', {
                 'pkt_name': 'player_join_response',
-                'room_number': room_number,
-                'user_name': user_name,
-                'join_status': {
-                    'status':
-                    join_status,
-                    'failure_reason':
-                    failure_reason if failure_reason is not None else ""
-                }
+                'status': status,
+                'aux_data': aux_data
             },
             room=player_id)
 
@@ -138,15 +126,15 @@ class PlayerNamespace(Namespace):
 
     def on_player_join_request(self, data):
         payload = loads(data)
-        room_number = payload['room_number']
+        room_code = payload['room_code']
         user_name = payload['user_name']
         player_id = request.sid
 
-        self.parent.register_player_join_request(player_id, room_number, user_name)
+        self.parent.register_player_join_request(player_id, room_code,
+                                                 user_name)
 
 
 # Priority
-# 1. Player join request
 # 2. Start game request
 # 3. Game start (to player/viewer)
 #
