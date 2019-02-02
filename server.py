@@ -285,7 +285,7 @@ class Server:
             self.player_namespace.broadcast_game_starting(room_code)
 
             def tick_callback(game_obj, room_code):
-                tick_data, game_ended = game_obj.tick()
+                tick_data, game_ended, winner = game_obj.tick()
                 if game_ended:
                     return True
 
