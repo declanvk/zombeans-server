@@ -23,4 +23,3 @@ while y_pos > -2490:
     y_pos = x[0][1]['position'][1]
     print(y_pos)
     print(x)
-
