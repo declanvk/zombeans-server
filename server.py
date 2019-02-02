@@ -336,7 +336,7 @@ class Server:
         full_player_list = []
         for other_player_id in host['players']:
             full_player_list.append({
-                k: self.players[player_id].get(k, None)
+                k: self.players[other_player_id].get(k, None)
                 for k in fields
             })
 
