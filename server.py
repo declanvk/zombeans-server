@@ -72,10 +72,10 @@ class Server:
         return ''.join(choices(ascii_lowercase, k=IDENTIFIER_LEN)).upper()
 
     def join_room(self, room, sid, namespace):
-        self.socket_io.join_room(room, sid=sid, namespace=namespace)
+        join_room(room, sid=sid, namespace=namespace)
 
     def leave_room(self, room, sid, namespace):
-        self.socket_io.leave_room(room, sid=sid, namespace=namespace)
+        leave_room(room, sid=sid, namespace=namespace)
 
     def register(self, socket_io):
         self.socket_io = socket_io
