@@ -98,7 +98,7 @@ class Server:
             'room_code': room_code,
             'game_state': GAME_STATE_LOBBY_WAITING,
             'game_obj': Game(),
-            'game_timer': None
+            'game_timer_thread': None
         }
 
         self.host_namespace.send_room_code(host_id, room_code)
@@ -292,10 +292,8 @@ class Server:
                 self.viewer_namespace.broadcast_game_tick(room_code, tick_data)
                 return False
 
-            host['game_timer'] = PeriodicTimer(
-                Game.TICK_TIME, tick_callback, args=(host['game_obj'], room_code)
-            )
-            host['game_timer'].start()
+            timer = PeriodicTimer(Game.TICK_TIME, tick_callback, args=(host['game_obj'], room_code))
+            host['game_timer_thread'] = socket_io.start_background_task(start_timer, timer)
 
             logger.info("Host started game. (id: {}, room: {})".format(host_id, room_code))
         else:

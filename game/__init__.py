@@ -1,6 +1,6 @@
 import pymunk
 from enum import Enum
-from math import copysign, abs
+from math import copysign
 
 class Direction(Enum):
     UP = 0b0001

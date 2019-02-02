@@ -1,6 +1,5 @@
 from flask import request
 from flask_socketio import Namespace, emit
-
 import logging
 
 logger = logging.getLogger(__name__)
@@ -38,7 +37,7 @@ class HostNamespace(Namespace):
         self.emit(
             'player_joined', {
                 'pkt_name': 'player_joined',
-                'players': players,
+                'players': list(players),
                 'new_player_name': new_player_name
             },
             room=host_id
