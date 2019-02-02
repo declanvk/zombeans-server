@@ -94,7 +94,7 @@ class Game:
 
     def start(self):
         self.started = True
-        self.players[1].shape.collision_type = Game.types["zombie"]
+        #self.players[self.players.keys()[0]].shape.collision_type = Game.TYPES["zombie"]
         return {"width": self.width, "height": self.height, "player_radius": Player.RADIUS}
 
 class Player:
