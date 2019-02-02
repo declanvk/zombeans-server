@@ -17,6 +17,6 @@ npm run build
 # Now in main server directory
 cd ..
 
-export ZOMBIES_STATIC_FOLDER="${PWD}/website/dist"
+export ZOMBEANS_STATIC_FOLDER="${PWD}/website/dist"
 
 cd $ORIGINAL_DIR
