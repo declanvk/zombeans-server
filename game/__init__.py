@@ -8,7 +8,7 @@ class Game:
                "a_released": 6, "s_pressed": 3, "s_released": 7,
                "d_pressed": 4, "d_released": 8}
     max_velocity = 5
-    acceleration = .3
+    acceleration = 1
     friction = .3
     tick_time = .1
 
@@ -22,26 +22,26 @@ class Game:
         self.height = height
         self.space = pymunk.Space()
         self.add_static_scenery()
-        #self.zombie_collision_handler = self.space.add_collision_handler(Game.types["player"], Game.types["zombie"])
+        self.zombie_collision_handler = self.space.add_collision_handler(Game.types["player"], Game.types["zombie"])
         self.started = False
         self.ended = False
 
         def turn_zombie(arbiter, space, data):
-            player = data[arbiter.shapes[0].id]
-            player.type = Game.types["zombie"]
+            print("here")
+            player = self.players[arbiter.shapes[0].id]
+            player.shape.collision_type = Game.types["zombie"]
             ended = True
-            for player in data:
-                if player.type == Game.types["player"]:
+            for player in self.players.values():
+                if player.shape.collision_type == Game.types["player"]:
                     ended = False
             self.ended = ended
             return True
 
-        #self.zombie_collision_handler.begin = turn_zombie
+        self.zombie_collision_handler.begin = turn_zombie
         self.space.damping = 0.1
 
     def add_player(self, id):
-        self.players[id] = Player(id)
-        self.space.add(self.players[id].body, self.players[id].shape)
+        self.players[id] = Player(id, self.space)
 
     def add_static_scenery(self):
         static_body = self.space.static_body
@@ -70,40 +70,44 @@ class Game:
         for player in self.players.items():
             data[player[0]] = dict()
             data[player[0]]["position"] = player[1].body.position
-            data[player[0]]["isZombie"] = player[1].type == Game.types["zombie"]
+            self.space.reindex_shapes_for_body(player[1].body)
+            data[player[0]]["isZombie"] = player[1].shape.collision_type == Game.types["zombie"]
         return data, self.ended
 
 
     def start(self):
-        #for x in self.players.items():
-            #self.zombie_collision_handler.data[x[0]] = x[1]
         self.started = True
+        self.players[1].shape.collision_type = Game.types["zombie"]
         return {"width": self.width, "height": self.height}
 
 
 class Player:
 
-    def __init__(self, id):
+    def __init__(self, id, space):
         self.id = id
-        self.body = pymunk.Body()
-        self.body.position = (id * 200.0, id * 200.0)
-        self.type = Game.types["player"]
+        self.body = pymunk.Body(1)
+        self.space = space
+        self.body.position = 100, 100 + 11 * id
         self.shape = pymunk.Circle(self.body, 5.0)
+        self.shape.density = 3
+        self.space.add(self.body, self.shape)
         self.shape.collision_type = Game.types["player"]
         self.current_accel_dirs = set()
         self.shape.id = id
 
         def velocity_cb(body, gravity, damping, dt):
+            velocity_vector = [0, 0]
             if body.velocity[0] < Game.max_velocity and "d" in self.current_accel_dirs:
-                body.velocity[0] += min(Game.max_velocity, body.velocity[0] + Game.acceleration)
+                velocity_vector[0] = min(Game.max_velocity, body.velocity[0] + Game.acceleration)
             if body.velocity[0] > -Game.max_velocity and "a" in self.current_accel_dirs:
-                body.velocity[0] = max(-Game.max_velocity, body.velocity[0]-Game.acceleration)
+                velocity_vector[0] = max(-Game.max_velocity, body.velocity[0]-Game.acceleration)
             if body.velocity[1] < Game.max_velocity and "w" in self.current_accel_dirs:
-                body.velocity[1] += min(Game.max_velocity, body.velocity[1]+Game.acceleration)
+                velocity_vector[1] = min(Game.max_velocity, body.velocity[1]+Game.acceleration)
             if body.velocity[1] > -Game.max_velocity and "s" in self.current_accel_dirs:
-                body.velocity[1] = max(-Game.max_velocity, body.velocity[1]-Game.acceleration)
+                velocity_vector[1] = max(-Game.max_velocity, body.velocity[1]-Game.acceleration)
+            body.velocity = velocity_vector
 
-        #self.body.velocity_func = velocity_cb
+        self.body.velocity_func = velocity_cb
 
 
 
