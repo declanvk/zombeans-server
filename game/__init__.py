@@ -88,11 +88,12 @@ class Game:
         self.space.damping = 0.1
 
     def is_ended_with_winner(self):
-        zombie_win_condition = all(
-            player.shape.collision_type == PlayerType.NORMAL.value for player in self.players.values()
+        zombie_win_condition = not any(
+            player.shape.collision_type == PlayerType.NORMAL.value
+            for player in self.players.values()
         )
         player_win_condition = self.tick_count > Game.MAX_TICKS
-        if zombie_win_condition:
+        if zombie_win_condition and len(self.player) > 0:
             return True, PlayerType.ZOMBIE.value
         elif player_win_condition:
             return True, PlayerType.NORMAL.value
@@ -136,7 +137,10 @@ class Game:
         for player in self.players.items():
             self.space.reindex_shapes_for_body(player[1].body)
             data[player[0]] = {
-                'position': { 'x': player[1].body.position[0], 'y': player[1].body.position[1] },
+                'position': {
+                    'x': player[1].body.position[0],
+                    'y': player[1].body.position[1]
+                },
                 'isZombie': player[1].shape.collision_type == PlayerType.ZOMBIE.value
             }
 

@@ -129,7 +129,7 @@ class Server:
             )
         else:
             logger.warning(
-                "Host disconnected with invalid state (id: {}, state: {})".format(
+                "Host disconnected (id: {}, state: {})".format(
                     host_id, game_state
                 )
             )
@@ -171,7 +171,7 @@ class Server:
             )
         else:
             logger.warning(
-                "Player disconnected with invalid state (id: {}, state: {})".format(
+                "Player disconnected (id: {}, state: {})".format(
                     player_id, player_state
                 )
             )
@@ -199,7 +199,7 @@ class Server:
 
         self.join_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
-        full_player_list = self.generate_room_code()
+        full_player_list = self.generate_player_name_character_list(host)
         self.viewer_namespace.send_game_view_response(viewer_id, 'success', full_player_list)
 
     def register_player_join_request(self, player_id, room_code, user_name):
@@ -243,6 +243,8 @@ class Server:
             return
 
         host['players'].append(player_id)
+        host['game_obj'].add_player(player_id)
+
         player['state'] = PLAYER_STATE_WAITING_GAME_START
         player['game_host'] = host_id
         player['user_name'] = user_name
@@ -250,7 +252,7 @@ class Server:
 
         self.join_room(room_code, player_id, PLAYER_NS_ENDPOINT)
 
-        full_player_list = self.generate_room_code()
+        full_player_list = self.generate_player_name_character_list(host)
         self.host_namespace.send_player_joined(host_id, full_player_list, user_name)
         self.player_namespace.send_player_join_response(
             player_id, 'success', {
@@ -330,12 +332,12 @@ class Server:
                 return host_id
         return None
 
-    def generate_player_name_character_list(self):
+    def generate_player_name_character_list(self, host, fields=('user_name', 'character')):
         full_player_list = []
         for other_player_id in host['players']:
             full_player_list.append({
                 k: self.players[player_id].get(k, None)
-                for k in ('user_name', 'character')
+                for k in fields
             })
 
         return full_player_list
