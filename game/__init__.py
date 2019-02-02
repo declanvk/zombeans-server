@@ -4,42 +4,58 @@ import pymunk
 class Game:
 
     types = {"player": 1, "zombie": 2}
-    control = {"w_pressed":1, "w_released":5, "a_pressed":2,
-               "a_released":6, "s_pressed":3, "s_released":7,
-               "d_pressed":4, "d_released":8}
+    control = {"w_pressed": 1, "w_released": 5, "a_pressed": 2,
+               "a_released": 6, "s_pressed": 3, "s_released": 7,
+               "d_pressed": 4, "d_released": 8}
     max_velocity = 5
     acceleration = .3
     friction = .3
     tick_time = .1
 
-    def __init__(self, max_players = 8, min_players = 4, width = 500, height = 500):
+    def __init__(self, max_players = 8, min_players = 4, width = 5000.0, height = 5000.0):
 
         self.action_buffer = dict()
         self.max_players = max_players
         self.min_players = min_players
         self.players = dict()
-        self.width = self.width
-        self.height = self.height
+        self.width = width
+        self.height = height
         self.space = pymunk.Space()
-        self.border = pymunk.Poly(self.space.static_body,  [(width/2, height/2),
-                                                            (-width/2, height/2),
-                                                            (-width/2, -height/2),
-                                                            (width/2,-height/2)])
-        self.space.add(self.border)
-        self.zombie_collision_handler = self.space.add_collision_handler(Game.types["player"], Game.types["zombie"])
+        self.add_static_scenery()
+        #self.zombie_collision_handler = self.space.add_collision_handler(Game.types["player"], Game.types["zombie"])
+        self.started = False
+        self.ended = False
 
         def turn_zombie(arbiter, space, data):
             player = data[arbiter.shapes[0].id]
             player.type = Game.types["zombie"]
+            ended = True
+            for player in data:
+                if player.type == Game.types["player"]:
+                    ended = False
+            self.ended = ended
             return True
 
-        self.zombie_collision_handler.begin = turn_zombie
+        #self.zombie_collision_handler.begin = turn_zombie
         self.space.damping = 0.1
-
 
     def add_player(self, id):
         self.players[id] = Player(id)
         self.space.add(self.players[id].body, self.players[id].shape)
+
+    def add_static_scenery(self):
+        static_body = self.space.static_body
+        static_lines = [pymunk.Segment(static_body, (self.width/2, self.height/2), (self.width/2, -self.height/2), 0.0),
+                        pymunk.Segment(static_body, (self.width / 2, -self.height/2),
+                                       (-self.width / 2, -self.height / 2), 0.0),
+                        pymunk.Segment(static_body, (-self.width / 2, -self.height / 2),
+                                       (-self.width / 2, self.height / 2), 0.0),
+                        pymunk.Segment(static_body, (-self.width / 2, self.height / 2),
+                                       (self.width / 2, self.height / 2), 0.0)]
+        for line in static_lines:
+            line.elasticity = 0.95
+            line.friction = 0.9
+        self.space.add(static_lines)
 
     def input(self, id, action):
         if Game.control[action] <= 4:
@@ -51,16 +67,18 @@ class Game:
     def tick(self):
         self.space.step(Game.tick_time)
         data = dict()
-        for player in self.players:
-            data[player] = dict
-            data[player]["position"] = player.body.position
-            data[player]["isZombie"] = player.type == Game.types["zombie"]
-        return data
+        for player in self.players.items():
+            data[player[0]] = dict()
+            data[player[0]]["position"] = player[1].body.position
+            data[player[0]]["isZombie"] = player[1].type == Game.types["zombie"]
+        return data, self.ended
 
 
-    def game_start(self):
-        for x in self.players.items():
-            self.zombie_collision_handler.data[x[0]] = x[1]
+    def start(self):
+        #for x in self.players.items():
+            #self.zombie_collision_handler.data[x[0]] = x[1]
+        self.started = True
+        return {"width": self.width, "height": self.height}
 
 
 class Player:
@@ -68,8 +86,9 @@ class Player:
     def __init__(self, id):
         self.id = id
         self.body = pymunk.Body()
+        self.body.position = (id * 200.0, id * 200.0)
         self.type = Game.types["player"]
-        self.shape = pymunk.Circle(self.body)
+        self.shape = pymunk.Circle(self.body, 5.0)
         self.shape.collision_type = Game.types["player"]
         self.current_accel_dirs = set()
         self.shape.id = id
@@ -84,8 +103,7 @@ class Player:
             if body.velocity[1] > -Game.max_velocity and "s" in self.current_accel_dirs:
                 body.velocity[1] = max(-Game.max_velocity, body.velocity[1]-Game.acceleration)
 
-
-        self.body.velocity_func = velocity_cb
+        #self.body.velocity_func = velocity_cb
 
 
 
