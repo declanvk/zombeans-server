@@ -71,7 +71,7 @@ column_limit=99
 #
 # For options FIXED, and VALIGN-RIGHT are only available when USE_TABS is
 # enabled.
-continuation_align_style=FIXED
+continuation_align_style=SPACE
 
 # Indent width used for line continuations.
 continuation_indent_width=4
@@ -186,15 +186,15 @@ split_before_dict_set_generator=True
 #
 #   foo = ('This is a really long string: {}, {}, {}, {}'
 #          .format(a, b, c, d))
-split_before_dot=False
+split_before_dot=True
 
 # Split after the opening paren which surrounds an expression if it doesn't
 # fit on a single line.
-split_before_expression_after_opening_paren=False
+split_before_expression_after_opening_paren=True
 
 # If an argument / parameter list is going to be split, then split before
 # the first argument.
-split_before_first_argument=False
+split_before_first_argument=True
 
 # Set to True to prefer splitting before 'and' or 'or' rather than
 # after.
