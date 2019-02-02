@@ -11,11 +11,11 @@ from threading import Timer
 from string import ascii_lowercase
 from random import choices
 from game import Game, Direction, KeyAction
-from timer import PeriodicTimer
+from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
 
-MIN_PLAYERS_PER_ROOM = 3
+MIN_PLAYERS_PER_ROOM = 1
 MAX_PLAYERS_PER_ROOM = 10
 
 PLAYER_NS_ENDPOINT = '/player'
@@ -296,7 +296,7 @@ class Server:
                 return False
 
             timer = PeriodicTimer(Game.TICK_TIME, tick_callback, args=(host['game_obj'], room_code))
-            host['game_timer_thread'] = socket_io.start_background_task(start_timer, timer)
+            host['game_timer_thread'] = self.socket_io.start_background_task(start_timer, timer)
 
             logger.info("Host started game. (id: {}, room: {})".format(host_id, room_code))
         else:
