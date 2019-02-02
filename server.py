@@ -1,17 +1,13 @@
-import eventlet
-eventlet.monkey_patch()
-
 from flask import Flask, send_from_directory, request
 from flask_socketio import SocketIO, Namespace, emit, join_room, leave_room
 from os import getenv
 from pathlib import Path
 import logging
 from namespaces import HostNamespace, ViewerNamespace, PlayerNamespace
-from threading import Timer
 from string import ascii_lowercase
 from random import choices
 from game import Game, Direction, KeyAction
-from timer import PeriodicTimer
+from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
 
@@ -295,8 +291,13 @@ class Server:
                 self.viewer_namespace.broadcast_game_tick(room_code, tick_data)
                 return False
 
-            timer = PeriodicTimer(Game.TICK_TIME, tick_callback, args=(host['game_obj'], room_code))
-            host['game_timer_thread'] = socket_io.start_background_task(start_timer, timer)
+            timer = PeriodicTimer(
+                Game.TICK_TIME,
+                self.socket_io.sleep,
+                tick_callback,
+                args=(host['game_obj'], room_code)
+            )
+            host['game_timer_thread'] = self.socket_io.start_background_task(start_timer, timer)
 
             logger.info("Host started game. (id: {}, room: {})".format(host_id, room_code))
         else:

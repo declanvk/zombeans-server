@@ -137,13 +137,12 @@ class Game:
         data = dict()
         for player in self.players.items():
             self.space.reindex_shapes_for_body(player[1].body)
-            data[player[0]] = {
-                'position': {
-                    'x': player[1].body.position[0],
-                    'y': player[1].body.position[1]
-                },
-                'isZombie': player[1].shape.collision_type == PlayerType.ZOMBIE.value
-            }
+            data[player[0]] = dict(
+                position=dict(
+                    x=float(player[1].body.position[0]), y=float(player[1].body.position[1])
+                ),
+                isZombie=bool(player[1].shape.collision_type == PlayerType.ZOMBIE.value)
+            )
 
         return data
 
@@ -198,8 +197,7 @@ class Player:
                 velocity_vector[1] = body.velocity[1] - Game.ACCELERATION
 
             clamped_velocity = map(
-                lambda x: copysign(max(abs(x), Game.MAX_VELOCITY), x),
-                velocity_vector
+                lambda x: copysign(max(abs(x), Game.MAX_VELOCITY), x), velocity_vector
             )
             body.velocity = clamped_velocity
 

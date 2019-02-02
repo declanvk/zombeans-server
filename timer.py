@@ -1,11 +1,10 @@
-import eventlet
 import logging, functools, time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 class PeriodicTimer:
-    def __init__(self, interval, function, args=None, kwargs=None, sleepfunc=eventlet.sleep):
+    def __init__(self, interval, sleepfunc, function, args=None, kwargs=None):
         self.interval = interval
         self.function = function
         self.args = args if args is not None else []
