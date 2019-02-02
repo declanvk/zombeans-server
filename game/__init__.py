@@ -18,6 +18,19 @@ class Direction(Enum):
     def check(num, variant):
         return (Direction.mask(num) & variant.value) == variant.value
 
+    @staticmethod
+    def get(input):
+        if input == "UP":
+            return Direction.UP
+        elif input == "DOWN":
+            return Direction.DOWN
+        elif input == "LEFT":
+            return Direction.LEFT
+        elif input == "RIGHT":
+            return Direction.RIGHT
+        else:
+            raise ValueError("Input ({}) did not match any variant of Direction".format(input))
+
 class KeyAction(Enum):
     PRESSED = 0b0_0000
     RELEASED = 0b1_0000
@@ -25,6 +38,15 @@ class KeyAction(Enum):
     @staticmethod
     def mask(num):
         return (KeyAction.PRESSED.value | KeyAction.RELEASED.value) & num
+
+    @staticmethod
+    def get(input):
+        if input == "PRESSED":
+            return KeyAction.PRESSED
+        elif input == "RELEASED":
+            return KeyAction.RELEASED
+        else:
+            raise ValueError("Input ({}) did not match any variant of KeyAction".format(input))
 
 class PlayerType(Enum):
     NORMAL = 1
