@@ -11,6 +11,7 @@ class PeriodicTimer(threading.Thread):
         self.args = args if args is not None else []
         self.kwargs = kwargs if kwargs is not None else {}
         self.finished = threading.Event()
+        self.daemon = True
 
     def cancel(self):
         """Stop the timer if it hasn't finished yet."""
