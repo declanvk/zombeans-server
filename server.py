@@ -226,7 +226,12 @@ class Server:
 
         self.join_room(room_code, player_id, PLAYER_NS_ENDPOINT)
         self.host_namespace.send_player_joined(host_id, host['players'], user_name)
-        self.player_namespace.send_player_join_response(player_id, 'success', { 'room_code': room_code, 'character': character })
+        self.player_namespace.send_player_join_response(
+            player_id, 'success', {
+                'room_code': room_code,
+                'character': character
+            }
+        )
 
     def register_request_start_game(self, host_id):
         host = self.hosts[host_id]

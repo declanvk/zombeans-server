@@ -29,4 +29,3 @@ class PeriodicTimer(threading.Thread):
             self.finished.wait(to_wait)
 
         self.finished.set()
-
