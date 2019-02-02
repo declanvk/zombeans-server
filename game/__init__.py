@@ -71,7 +71,9 @@ class Game:
         data = dict()
         for player in self.players.items():
             data[player[0]] = dict()
-            data[player[0]]["position"] = player[1].body.position
+            data[player[0]]["position"] = dict()
+            data[player[0]]["position"].x = player[1].body.position[0]
+            data[player[0]]["position"].y = player[1].body.position[1]
             self.space.reindex_shapes_for_body(player[1].body)
             data[player[0]]["isZombie"] = player[1].shape.collision_type == Game.types["zombie"]
         return data, self.ended
@@ -80,17 +82,17 @@ class Game:
     def start(self):
         self.started = True
         self.players[1].shape.collision_type = Game.types["zombie"]
-        return {"width": self.width, "height": self.height}
+        return {"width": self.width, "height": self.height, "player_radius": Player.radius}
 
 
 class Player:
-
+    radius = 25
     def __init__(self, id, space, pos):
         self.id = id
         self.body = pymunk.Body(1)
         self.space = space
         self.body.position = pos
-        self.shape = pymunk.Circle(self.body, 10.0)
+        self.shape = pymunk.Circle(self.body, Player.radius)
         self.shape.density = 3
         self.space.add(self.body, self.shape)
         self.shape.collision_type = Game.types["player"]
