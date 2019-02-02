@@ -99,9 +99,9 @@ Sent from server to viewers
 {
     "pkt_name": "game_starting",
     "board_description": {
-                            "width":num, 
-                            "height":num, 
-                            "player_radius":num,
+                            "width":0, 
+                            "height":0, 
+                            "player_radius":0,
                           }
 }
 ```
