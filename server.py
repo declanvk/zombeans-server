@@ -165,8 +165,49 @@ class Server:
 
         del self.players[player_id]
 
-    def register_player_join_request(self, player_id, room_number, user_name):
-        pass
+    def register_player_join_request(self, player_id, room_code, user_name):
+        player = self.players[player_id]
+        host_id = self.lookup_host_by_room_code(room_code)
+
+        if host_id is None:
+            logger.info(
+                "Player attempted to access non-existent room (id: {}, room: {})"
+                .format(player_id, room_code))
+
+            self.player_namespace.send_player_join_response(
+                player_id, 'failure',
+                'Room {} does not exist'.format(room_code))
+            return
+
+        host = self.hosts[host_id]
+        if host['game_state'] != GAME_STATE_LOBBY_WAITING:
+            logger.info(
+                "Player attempted to join a game that was not in the lobby state (id: {}, room: {})"
+                .format(player_id, room_code))
+
+            self.player_namespace.send_player_join_response(
+                player_id, 'failure',
+                'Room {} is not in open state'.format(room_code))
+            return
+
+        if len(host['players']) >= MAX_PLAYERS_PER_ROOM:
+            logger.info(
+                "Player attempted to join a room that was full (id: {}, room: {})".format(player_id, room_code))
+
+            self.player_namespace.send_player_join_response(player_id, 'failure', 'Room {} is full'.format(room_code))
+            return
+
+        host['players'].append(player_id)
+        player['state'] = PLAYER_STATE_WAITING_GAME_START
+        player['game_host'] = host_id
+
+        self.player_namespace.send_player_join_response(player_id, 'success', '')
+
+    def lookup_host_by_room_code(self, room_code):
+        for host_id, host_data in self.hosts.items():
+            if host_data['room_code'] == room_code:
+                return host_id
+        return None
 
 
 server = Server(HostNamespace, ViewerNamespace, PlayerNamespace)
