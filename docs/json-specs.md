@@ -144,10 +144,12 @@ Sent from server to view in response to game view request
     "aux_data": "failure reason (string, conditional on failure)" | {
         "current_players": [
             {
+                "player_id": "player id"
                 "user_name": "user 1 name (string)",
                 "character": "character name (string)"
             },
             {
+                "player_id": "player id"
                 "user_name": "user 2 name (string)",
                 "character": "character name (string)"
             },
