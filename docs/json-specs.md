@@ -141,14 +141,23 @@ Sent from server to view in response to game view request
 {
     "pkt_name": "game_view_response",
     "view_status": "success" | "failure",
-    "view_status_data": "failure reason (string, conditional on failure)" | [ // array of user data
-        {"user_name": "user 1 name (string)", "character": "character name (string)"},
-        {"user_name": "user 2 name (string)", "character": "character name (string)"}
-    ],
-    "board_description": {
-        "width": "number",
-        "height": "number",
-        "player_radius": "number"
+    "aux_data": "failure reason (string, conditional on failure)" | {
+        "current_players": [
+            {
+                "user_name": "user 1 name (string)",
+                "character": "character name (string)"
+            },
+            {
+                "user_name": "user 2 name (string)",
+                "character": "character name (string)"
+            },
+            // ...
+        ],
+        "board_description": {
+            "width": "number",
+            "height": "number",
+            "player_radius": "number"
+        }
     }
 }
 ```

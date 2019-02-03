@@ -65,13 +65,11 @@ class ViewerNamespace(Namespace):
     def on_disconnect(self):
         self.parent.register_viewer_disconnect(request.sid)
 
-    def broadcast_game_starting(self, room_id, board_description):
+    def broadcast_game_starting(self, room_id):
         self.emit(
             'game_starting', {
                 'pkt_name': 'game_starting',
-                'board_description': board_description
-            },
-            room=room_id
+            }, room=room_id
         )
 
     def broadcast_game_over(self, room_id):
@@ -86,12 +84,12 @@ class ViewerNamespace(Namespace):
             room=room_id
         )
 
-    def send_game_view_response(self, viewer_id, view_status, view_status_data):
+    def send_game_view_response(self, viewer_id, view_status, aux_data):
         self.emit(
             'game_view_response', {
                 'pkt_name': 'game_view_response',
                 'view_status': view_status,
-                'view_status_data': view_status_data
+                'aux_data': aux_data
             },
             room=viewer_id
         )

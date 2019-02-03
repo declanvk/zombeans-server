@@ -6,7 +6,7 @@ import logging
 from namespaces import HostNamespace, ViewerNamespace, PlayerNamespace
 from string import ascii_lowercase
 from random import choices
-from game import Game, Direction, KeyAction
+from game import Game, Direction, KeyAction, Player
 from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
@@ -199,11 +199,20 @@ class Server:
         viewer['room_code'] = host_id
         host = self.hosts[host_id]
         host['viewers'].append(viewer_id)
+        game_obj = host['game_obj']
 
         self.join_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
         full_player_list = self.generate_player_name_character_list(host)
-        self.viewer_namespace.send_game_view_response(viewer_id, 'success', full_player_list)
+        aux_data = {
+            'current_players': full_player_list,
+            'board_description': {
+                'width': game_obj.width,
+                'height': game_obj.height,
+                'player_radius': Player.RADIUS,
+            }
+        }
+        self.viewer_namespace.send_game_view_response(viewer_id, 'success', aux_data)
 
         logger.info("Viewer joined room (id: {}, room: {})".format(viewer_id, room_code))
 
@@ -281,8 +290,8 @@ class Server:
             for player_id in host['players']:
                 self.players[player_id]['state'] = PLAYER_STATE_IN_GAME
 
-            board_description = host['game_obj'].start()
-            self.viewer_namespace.broadcast_game_starting(room_code, board_description)
+            host['game_obj'].start()
+            self.viewer_namespace.broadcast_game_starting(room_code)
             self.player_namespace.broadcast_game_starting(room_code)
 
             def tick_callback(game_obj, room_code):
