@@ -32,5 +32,11 @@ git add static
 # If it needs a commit, add and echo to catch if no release is needed
 git commit -m "Update static resources" || echo
 
+# Perform last check for cleanliness
+git status --porcelain
+
+# If we get to this point, release is on the point of both server and web master
+git push heroku release:master
+
 git checkout master
 
