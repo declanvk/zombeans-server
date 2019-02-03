@@ -6,7 +6,7 @@ import logging
 from namespaces import HostNamespace, ViewerNamespace, PlayerNamespace
 from string import ascii_lowercase
 from random import choices
-from game import Game, Direction, KeyAction, Player
+from game import Game, Player
 from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
@@ -321,28 +321,26 @@ class Server:
 
     def register_make_move(self, player_id, origin, action):
         player = self.players[player_id]
+        host_id = player['game_host']
+        if host_id is None:
+            logger.warning(
+                'Player attempted to move while not in any game (id: {})'.format(player_id)
+            )
+            return
 
+        host = self.hosts[host_id]
+        if host['game_state'] != GAME_STATE_RUNNING:
+            logger.warning(
+                'Player attempted to move while game was not running (id: {}, room: {}, state: {})'
+                .format(player_id, host['room_code'], host['game_state'])
+            )
+            return
         if origin == 'god':
-            pass  # TODO when we support god actions
+            host['game_obj'].god_input(player_id, action['code'])
         elif origin == 'normal':
-            host_id = player['game_host']
-            if host_id is None:
-                logger.warning(
-                    'Player attempted to move while not in any game (id: {})'.format(player_id)
-                )
-                return
-
-            host = self.hosts[host_id]
-            if host['game_state'] != GAME_STATE_RUNNING:
-                logger.warning(
-                    'Player attempted to move while game was not running (id: {}, room: {}, state: {})'
-                    .format(player_id, host['room_code'], host['game_state'])
-                )
-                return
-
             direction = action['key']
             state = action['state']
-            host['game_obj'].input(player_id, Direction.get(direction), KeyAction.get(state))
+            host['game_obj'].input(player_id, direction, state)
         else:
             logger.warning(
                 'Player attempted to move from an invalid origin (either "god" or "normal") (id: {}, origin: {})'
