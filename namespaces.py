@@ -134,6 +134,14 @@ class PlayerNamespace(Namespace):
     def broadcast_game_over(self, room_id):
         self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
 
+    def broadcast_game_tick(self, room_id, god_spells):
+        self.emit(
+            'god_spells', {
+                'pkt_name': 'god_spells',
+                'god_spells': god_spells
+            },
+            room=room_id
+        )
     def on_player_join_request(self, payload):
         room_code = payload['room_code']
         user_name = payload['user_name']

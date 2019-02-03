@@ -49,7 +49,10 @@ class Game:
         self.space.damping = 0.1
 
     def add_player(self, id):
-        self.players[id] = Player(id, self.space, self.starting_positions.pop(), self)
+        if len(self.players) == 4:
+            self.add_god(id)
+        else:
+            self.players[id] = Player(id, self.space, self.starting_positions.pop(), self)
 
     def add_god(self, id):
         self.players[id] = God(id)
@@ -80,6 +83,7 @@ class Game:
         if self.god is not None and id == self.god.id:
             if code in self.god.possible_actions:
                 self.god.current_actions[code] = self.god.possible_actions[code]
+                self.god.cooldown_actions[code] = self.god.possible_actions[code]
                 self.god.possible_actions.remove(code)
 
     def cure_player(self):
@@ -106,7 +110,11 @@ class Game:
             data[player[0]]["position"]["y"] = player[1].body.position[1]
             self.space.reindex_shapes_for_body(player[1].body)
             data[player[0]]["isZombie"] = player[1].shape.collision_type == Game.types["zombie"]
-        return data, self.ended, self.winner
+            if self.god is not None:
+                data["god_spells"] = {"possible": list(self.god.possible_actions.keys()),
+                                      "cooldown": {x.id : x.cooldown for x in self.god.cooldown_actions.values()}
+                                      }
+        return data, self.ended, self.winner,
 
 
     def start(self):
@@ -115,7 +123,7 @@ class Game:
 
 
 class Player:
-    RADIUS = 20.0
+    RADIUS = 60.0
 
     def __init__(self, id, space, pos, game):
         self.id = id
