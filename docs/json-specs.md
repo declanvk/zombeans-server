@@ -34,6 +34,16 @@ Sent from server to players to notify game end
 }
 ```
 
+# Change State (?)
+Sent from server to players to notify them on changing from normal to zombie, or vice versa, or other important changes
+```json
+{
+    "pkt_name": "status_change",
+    "type": "zombie-change",
+    "zombie-change": { "new-state": "zombie" | "normal" }
+}
+```
+
 # To Server from Player
 
 ## Player Join Request (2)

@@ -88,7 +88,8 @@ class Server:
             'room_code': room_code,
             'game_state': GAME_STATE_LOBBY_WAITING,
             'game_obj': Game(),
-            'game_timer_thread': None
+            'game_timer_thread': None,
+            'previous_player_states': {}
         }
 
         self.host_namespace.send_room_code(host_id, room_code)
@@ -294,6 +295,17 @@ class Server:
                 if "god_spells" in tick_data:
                     self.player_namespace.broadcast_game_tick(room_code, tick_data['god_spells'])
                 self.viewer_namespace.broadcast_game_tick(room_code, tick_data)
+
+                previous_data = host['previous_player_states']
+                difference = { tick_data[p]['isZombie'] for p in (set(previous_data) & set(tick_data)) if previous_data[p] != tick_data[p]['isZombie'] }
+                host['previous_player_states'] = { tick_data[p]['isZombie'] for p in tick_data if p != 'god_spells'  }
+
+                for p in difference:
+                    if difference[p]:
+                        new_state = 'zombie'
+                    else:
+                        new_state = 'normal'
+                    self.player_namespace.send_status_change(p, 'zombie-change', { "new-state": new_state })
                 return False
 
             timer = PeriodicTimer(

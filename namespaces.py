@@ -142,6 +142,14 @@ class PlayerNamespace(Namespace):
             },
             room=room_id
         )
+
+    def send_status_change(self, player_id, type, data):
+        self.emit('status_change', {
+                'pkt_name': 'status_change',
+                'type': type,
+                type: data
+            }, room=player_id)
+
     def on_player_join_request(self, payload):
         room_code = payload['room_code']
         user_name = payload['user_name']
