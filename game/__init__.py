@@ -49,14 +49,15 @@ class Game:
         self.space.damping = 0.1
 
     def add_player(self, id):
-        if len(self.players) == 4:
+        if len(self.players) == 0:
+            self.players[id] = Player(id, self.space, self.starting_positions.pop(), self, isZombie=True)
+        if len(self.players) == 1 and self.god is None:
             self.add_god(id)
         else:
             self.players[id] = Player(id, self.space, self.starting_positions.pop(), self)
 
     def add_god(self, id):
-        self.players[id] = God(id)
-        self.god = self.players[id]
+        self.god = God(id)
 
     def add_static_scenery(self):
         static_body = self.space.static_body
@@ -110,10 +111,10 @@ class Game:
             data[player[0]]["position"]["y"] = player[1].body.position[1]
             self.space.reindex_shapes_for_body(player[1].body)
             data[player[0]]["isZombie"] = player[1].shape.collision_type == Game.types["zombie"]
-            if self.god is not None:
-                data["god_spells"] = {"possible": list(self.god.possible_actions.keys()),
-                                      "cooldown": {x.id : x.cooldown for x in self.god.cooldown_actions.values()}
-                                      }
+        if self.god is not None:
+            data["god_spells"] = {"possible": list(self.god.possible_actions.keys()),
+                                  "cooldown": {x.id : x.cooldown for x in self.god.cooldown_actions.values()}
+                                 }
         return data, self.ended, self.winner
 
 
@@ -125,7 +126,7 @@ class Game:
 class Player:
     RADIUS = 60.0
 
-    def __init__(self, id, space, pos, game):
+    def __init__(self, id, space, pos, game, isZombie=False):
         self.id = id
         self.body = pymunk.Body(1)
         self.space = space
@@ -134,6 +135,10 @@ class Player:
         self.shape.density = 3
         self.space.add(self.body, self.shape)
         self.shape.collision_type = Game.types["player"]
+        if isZombie:
+            self.shape.collision_type = Game.types["zombie"]
+        else:
+            self.shape.collision_type = Game.types["player"]
         self.current_accel_dirs = set()
         self.shape.id = id
         self.game = game
