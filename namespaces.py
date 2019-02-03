@@ -74,6 +74,9 @@ class ViewerNamespace(Namespace):
             room=room_id
         )
 
+    def broadcast_game_over(self, room_id):
+        self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
+
     def broadcast_game_tick(self, room_id, player_pos_data):
         self.emit(
             'game_tick', {
