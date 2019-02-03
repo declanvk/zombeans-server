@@ -111,7 +111,6 @@ class Server:
 
         if (game_state == GAME_STATE_LOBBY_WAITING) or (game_state == GAME_STATE_RUNNING):
             for player_id in players:
-                print("wtf")
                 self.players[player_id]['game_host'] = None
                 self.players[player_id]['state'] = PLAYER_STATE_NOTHING
 
@@ -297,7 +296,7 @@ class Server:
                 return False
 
             timer = PeriodicTimer(
-                Game.TICK_TIME,
+                Game.EXTERNAL_TICK_TIME,
                 self.socket_io.sleep,
                 tick_callback,
                 args=(host['game_obj'], room_code)

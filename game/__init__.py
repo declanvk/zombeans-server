@@ -63,7 +63,8 @@ class PlayerType(Enum):
 class Game:
     MAX_VELOCITY = 5
     ACCELERATION = 1
-    TICK_TIME = .1
+    INTERNAL_TICK_TIME = 0.01
+    EXTERNAL_TICK_TIME = 0.01
     MAX_TICKS = 600
 
     def __init__(self, width= 800.0, height=1200.0):
@@ -153,11 +154,8 @@ class Game:
             return None, True, None
 
         self.tick_count += 1
-        self.space.step(Game.TICK_TIME)
+        self.space.step(Game.INTERNAL_TICK_TIME)
         data = self.collect_render_data()
-
-        for player_id, player in self.players.items():
-            player.reset_accel()
 
         game_over, winner = self.is_ended_with_winner()
         if game_over:
@@ -186,20 +184,16 @@ class Player:
         self.shape.id = id
 
         def velocity_cb(body, gravity, damping, dt):
-            velocity_vector = [0, 0]
-            if Direction.check(self.current_accel_dirs, Direction.RIGHT):
-                velocity_vector[0] = body.velocity[0] + Game.ACCELERATION
-            if Direction.check(self.current_accel_dirs, Direction.LEFT):
-                velocity_vector[0] = body.velocity[0] - Game.ACCELERATION
-            if Direction.check(self.current_accel_dirs, Direction.UP):
-                velocity_vector[1] = body.velocity[1] + Game.ACCELERATION
-            if Direction.check(self.current_accel_dirs, Direction.DOWN):
-                velocity_vector[1] = body.velocity[1] - Game.ACCELERATION
+            velocity_vector = [body.velocity[0], body.velocity[1]]
 
-            clamped_velocity = map(
-                lambda x: copysign(max(abs(x), Game.MAX_VELOCITY), x), velocity_vector
-            )
-            body.velocity = clamped_velocity
+            if Direction.check(self.current_accel_dirs, Direction.RIGHT):
+                body.velocity = 600, 0
+            if Direction.check(self.current_accel_dirs, Direction.LEFT):
+                body.velocity = -600, 0
+            if Direction.check(self.current_accel_dirs, Direction.UP):
+                body.velocity = 0, 600
+            if Direction.check(self.current_accel_dirs, Direction.DOWN):
+                body.velocity = 0, -600
 
         self.body.velocity_func = velocity_cb
 
@@ -210,6 +204,3 @@ class Player:
             self.current_accel_dirs &= ~key.value
         else:
             raise TypeError("'action' param was not of KeyAction type", action)
-
-    def reset_accel(self):
-        self.current_accel_dirs = 0

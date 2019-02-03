@@ -30,7 +30,6 @@ Sent from server to players to notify game end
 ```json
 {
     "pkt_name": "game_over",
-    "game_end_data": "???"
 }
 ```
 
@@ -108,11 +107,6 @@ Sent from server to viewers
 ```json
 {
     "pkt_name": "game_starting",
-    "board_description": {
-                            "width":num,
-                            "height":num,
-                            "player_radius":num,
-                         }
 }
 ```
 
@@ -122,7 +116,6 @@ Sent from server to players to notify game end
 ```json
 {
     "pkt_name": "game_over",
-    "game_end_data": "???"
 }
 
 ## Game Tick (8)
@@ -152,6 +145,11 @@ Sent from server to view in response to game view request
         {"user_name": "user 1 name (string)", "character": "character name (string)"},
         {"user_name": "user 2 name (string)", "character": "character name (string)"}
     ],
+    "board_description": {
+        "width": "number",
+        "height": "number",
+        "player_radius": "number"
+    }
 }
 ```
 
