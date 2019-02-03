@@ -114,7 +114,7 @@ class Game:
                 data["god_spells"] = {"possible": list(self.god.possible_actions.keys()),
                                       "cooldown": {x.id : x.cooldown for x in self.god.cooldown_actions.values()}
                                       }
-        return data, self.ended, self.winner,
+        return data, self.ended, self.winner
 
 
     def start(self):

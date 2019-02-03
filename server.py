@@ -286,12 +286,13 @@ class Server:
             self.player_namespace.broadcast_game_starting(room_code)
 
             def tick_callback(game_obj, room_code):
-                tick_data, game_ended, winner, god_spells = game_obj.tick()
+                tick_data, game_ended, winner = game_obj.tick()
                 if game_ended:
                     self.player_namespace.broadcast_game_over(room_code, self.lookup_winner_name(winner))
                     self.viewer_namespace.broadcast_game_over(room_code, self.lookup_winner_name(winner))
                     return True
-                self.player_namespace.broadcast_game_tick(room_code, tick_data['god_spells'])
+                if "god_spells" in tick_data:
+                    self.player_namespace.broadcast_game_tick(room_code, tick_data['god_spells'])
                 self.viewer_namespace.broadcast_game_tick(room_code, tick_data)
                 return False
 
