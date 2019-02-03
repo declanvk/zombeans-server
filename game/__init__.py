@@ -50,8 +50,6 @@ class Game:
         self.space.damping = 0.1
 
     def add_player(self, id):
-        print(id + "connected")
-        print(self.player_count)
         if self.player_count == 0:
             self.players[id] = Player(id, self.space, self.starting_positions.pop(), self, isZombie=True)
         elif self.player_count == 1 and self.god is None:
