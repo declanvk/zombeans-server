@@ -31,7 +31,7 @@ class Game:
         self.effects = set()
 
         def turn_zombie(arbiter, space, data):
-            if GodAction.IMMUNE in self.god.current_actions:
+            if self.god is not None and GodAction.IMMUNE in self.god.current_actions:
                 return True
 
             player = self.players[arbiter.shapes[0].id]
@@ -90,10 +90,11 @@ class Game:
 
     def tick(self):
         self.space.step(Game.INTERNAL_TICK_TIME)
-        if GodAction.CURE in self.god.current_actions:
+        if self.god is not None and GodAction.CURE in self.god.current_actions:
             self.cure_player()
         self.time_left -= Game.INTERNAL_TICK_TIME
-        self.god.tick()
+        if self.god is not None:
+            self.god.tick()
         if self.time_left <= 0:
             self.ended = True
             self.winner = Game.types["player"]
@@ -134,9 +135,10 @@ class Player:
             accel_modifier = 1
             max_vel_mod = 1
             if self.shape.collision_type == Game.types["zombie"] and \
-                GodAction.FREEZE in self.game.god.current_actions:
+                self.game.god is not None and GodAction.FREEZE in self.game.god.current_actions:
                 body.velocity = [0, 0]
             if self.shape.collision_type == Game.types["player"] and \
+                self.game.god is not None and \
                 GodAction.SPEED_UP in self.game.god.current_actions:
                 accel_modifier = 1.5
                 max_vel_mod = 2
