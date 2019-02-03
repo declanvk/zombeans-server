@@ -21,6 +21,7 @@ class Direction(Enum):
 
     @staticmethod
     def get(input):
+        input = input.upper()
         if input == "UP":
             return Direction.UP
         elif input == "DOWN":
@@ -42,6 +43,7 @@ class KeyAction(Enum):
 
     @staticmethod
     def get(input):
+        input = input.upper()
         if input == "PRESSED":
             return KeyAction.PRESSED
         elif input == "RELEASED":
