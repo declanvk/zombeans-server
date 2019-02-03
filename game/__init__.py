@@ -11,8 +11,8 @@ class Game:
 
     def __init__(self, max_players = 8, min_players = 4, width = 1300.0, height = 700.0):
 
-        self.starting_positions = [(-100, 0), (0, -100), (10, 0), (50, 0),
-                                   (50, 50), (-50, -50), (700, 100), (100, 300),
+        self.starting_positions = [(100, 300), (50, 450), (600, 600), (1000, 500),
+                                   (1200, 50), (500, 200), (700, 100), (100, 300),
                                    (500, 500), (100, 100)]
         self.max_players = max_players
         self.min_players = min_players
