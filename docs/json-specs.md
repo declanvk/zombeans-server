@@ -9,7 +9,8 @@ Sent from server to player to notify successful room join.
     "status": "success" | "failure",
     "aux_data": {
         "room_code": "room code (string)",
-        "character": "character ident (number)"
+        "character": "character ident (number)",
+        "is_god": "true" | "false",
     } | "failure reason (string)"
 }
 ```

@@ -262,7 +262,8 @@ class Server:
         self.player_namespace.send_player_join_response(
             player_id, 'success', {
                 'room_code': room_code,
-                'character': character
+                'character': character,
+                'is_god': "true" if character == 7 else "false"
             }
         )
         logger.info(
