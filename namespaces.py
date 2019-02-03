@@ -131,7 +131,7 @@ class PlayerNamespace(Namespace):
     def broadcast_game_starting(self, room_id):
         self.emit('game_starting', {'pkt_name': 'game_starting'}, room=room_id)
 
-    def broadcast_game_over(self, room_id):
+    def broadcast_game_over(self, room_id, winner):
         self.emit('game_over', {'pkt_name': 'game_over', 'winner': winner}, room=room_id)
 
     def broadcast_game_tick(self, room_id, god_spells):
