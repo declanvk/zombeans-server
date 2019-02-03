@@ -72,8 +72,8 @@ class ViewerNamespace(Namespace):
             }, room=room_id
         )
 
-    def broadcast_game_over(self, room_id):
-        self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
+    def broadcast_game_over(self, room_id, winner):
+        self.emit('game_over', {'pkt_name': 'game_over', 'winner': winner}, room=room_id)
 
     def broadcast_game_tick(self, room_id, player_pos_data):
         self.emit(
@@ -132,7 +132,7 @@ class PlayerNamespace(Namespace):
         self.emit('game_starting', {'pkt_name': 'game_starting'}, room=room_id)
 
     def broadcast_game_over(self, room_id):
-        self.emit('game_over', {'pkt_name': 'game_over'}, room=room_id)
+        self.emit('game_over', {'pkt_name': 'game_over', 'winner': winner}, room=room_id)
 
     def broadcast_game_tick(self, room_id, god_spells):
         self.emit(

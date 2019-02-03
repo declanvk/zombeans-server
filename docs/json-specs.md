@@ -30,6 +30,7 @@ Sent from server to players to notify game end
 ```json
 {
     "pkt_name": "game_over",
+    "winner": "normal" | "zombies" | "none",
 }
 ```
 
@@ -116,6 +117,7 @@ Sent from server to players to notify game end
 ```json
 {
     "pkt_name": "game_over",
+    "winner": "normal" | "zombies" | "none",
 }
 
 ## Game Tick (8)
