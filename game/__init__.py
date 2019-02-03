@@ -81,6 +81,7 @@ class Game:
         )
         self.running = False
         self.tick_count = 0
+        self.god = None
 
         def turn_zombie(arbiter, space, data):
             player = self.players[arbiter.shapes[0].id]
@@ -106,6 +107,13 @@ class Game:
 
     def add_player(self, id):
         self.players[id] = Player(id, self.space, self.starting_positions.pop())
+
+    def add_god(self, id):
+        if self.god is None:
+            self.god = God(id)
+            self.players[id] = self.god
+        else:
+            self.players[id] = Player(id, self.space, self.starting_positions.pop())
 
     def add_static_scenery(self):
         static_body = self.space.static_body
@@ -203,3 +211,19 @@ class Player:
             self.current_accel_dirs &= ~key.value
         else:
             raise TypeError("'action' param was not of KeyAction type", action)
+class God:
+    def __init__(self, id):
+        self.id = id
+        self.current_actions = [GodAction(GodAction.FREEZE, )]
+        self.possible_actions = []
+        self.cooldown_actions = []
+
+
+class GodAction:
+    FREEZE = 1
+    SPEED_UP = 2
+    IMMUNE = 3
+    def __init__(self, id, data, duration, cooldown):
+        self.data = data
+        self.duration = duration
+        self.cooldown = cooldown
