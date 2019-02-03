@@ -9,7 +9,7 @@ class Game:
     EXTERNAL_TICK_TIME = 0.01
     MAX_TICKS = 60
 
-    def __init__(self, max_players = 8, min_players = 4, width = 1200.0, height = 800.0):
+    def __init__(self, max_players = 8, min_players = 4, width = 1300.0, height = 700.0):
 
         self.starting_positions = [(-100, 0), (0, -100), (10, 0), (50, 0),
                                    (50, 50), (-50, -50), (-50, 0), (0, -50),
@@ -115,7 +115,7 @@ class Game:
 
 
 class Player:
-    RADIUS = 20.0
+    RADIUS = 60.0
 
     def __init__(self, id, space, pos, game):
         self.id = id
