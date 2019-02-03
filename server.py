@@ -6,7 +6,7 @@ import logging
 from namespaces import HostNamespace, ViewerNamespace, PlayerNamespace
 from string import ascii_lowercase
 from random import choices
-from game import Game, Direction, KeyAction, Player
+from game import Game, Player
 from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
@@ -342,7 +342,7 @@ class Server:
 
             direction = action['key']
             state = action['state']
-            host['game_obj'].input(player_id, Direction.get(direction), KeyAction.get(state))
+            host['game_obj'].input(player_id, direction, state)
         else:
             logger.warning(
                 'Player attempted to move from an invalid origin (either "god" or "normal") (id: {}, origin: {})'

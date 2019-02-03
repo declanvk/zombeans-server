@@ -1,5 +1,4 @@
 import game
-from game import Direction, KeyAction
 
 game = game.Game()
 game.add_player(1)
@@ -10,12 +9,12 @@ game.add_player(5)
 game.add_player(6)
 game.add_player(7)
 game.start()
-game.input(1, Direction.UP, KeyAction.PRESSED)
+game.input(1, "u", "pressed")
 for _ in range(50):
     print(game.tick())
-game.input(1, Direction.UP, KeyAction.RELEASED)
-game.input(1, Direction.DOWN, KeyAction.PRESSED)
-game.input(1, Direction.RIGHT, KeyAction.PRESSED)
+game.input(1, "u", "r")
+game.input(1, "d", "pressed")
+game.input(1, "", KeyAction.PRESSED)
 for i in range(25):
     print(game.tick())
 y_pos = 0
