@@ -11,7 +11,7 @@ from timer import PeriodicTimer, start_timer
 
 IDENTIFIER_LEN = 6
 
-MIN_PLAYERS_PER_ROOM = 1
+MIN_PLAYERS_PER_ROOM = 3
 MAX_PLAYERS_PER_ROOM = 10
 
 PLAYER_NS_ENDPOINT = '/player'
