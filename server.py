@@ -122,6 +122,7 @@ class Server:
                 self.leave_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
             self.player_namespace.broadcast_game_over(room_code)
+            self.viewer_namespace.broadcast_game_over(room_code)
             logger.warning(
                 "Host disconnected while attending to game (id: {}, room: {})".format(
                     host_id, room_code
@@ -286,6 +287,8 @@ class Server:
             def tick_callback(game_obj, room_code):
                 tick_data, game_ended, winner = game_obj.tick()
                 if game_ended:
+                    self.player_namespace.broadcast_game_over(room_code)
+                    self.viewer_namespace.broadcast_game_over(room_code)
                     return True
 
                 self.viewer_namespace.broadcast_game_tick(room_code, tick_data)

@@ -115,6 +115,15 @@ Sent from server to viewers
 }
 ```
 
+# Game Over (10)
+Sent from server to players to notify game end
+
+```json
+{
+    "pkt_name": "game_over",
+    "game_end_data": "???"
+}
+
 ## Game Tick (8)
 Sent from server to all viewers
 
