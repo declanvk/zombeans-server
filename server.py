@@ -67,15 +67,6 @@ class Server:
         # Map viewer connection id to all viewer data
         self.viewers = {}
 
-    def generate_room_code(self):
-        return ''.join(choices(ascii_lowercase, k=IDENTIFIER_LEN)).upper()
-
-    def join_room(self, room, sid, namespace):
-        join_room(room, sid=sid, namespace=namespace)
-
-    def leave_room(self, room, sid, namespace):
-        leave_room(room, sid=sid, namespace=namespace)
-
     def register(self, socket_io):
         self.socket_io = socket_io
 
@@ -121,8 +112,8 @@ class Server:
 
                 self.leave_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
-            self.player_namespace.broadcast_game_over(room_code)
-            self.viewer_namespace.broadcast_game_over(room_code)
+            self.player_namespace.broadcast_game_over(room_code, self.lookup_winner_name(None))
+            self.viewer_namespace.broadcast_game_over(room_code, self.lookup_winner_name(None))
             logger.warning(
                 "Host disconnected while attending to game (id: {}, room: {})".format(
                     host_id, room_code
@@ -297,8 +288,8 @@ class Server:
             def tick_callback(game_obj, room_code):
                 tick_data, game_ended, winner = game_obj.tick()
                 if game_ended:
-                    self.player_namespace.broadcast_game_over(room_code)
-                    self.viewer_namespace.broadcast_game_over(room_code)
+                    self.player_namespace.broadcast_game_over(room_code, self.lookup_winner_name(winner))
+                    self.viewer_namespace.broadcast_game_over(room_code, self.lookup_winner_name(winner))
                     return True
                 if "god_spells" in tick_data:
                     self.player_namespace.broadcast_game_tick(room_code, tick_data['god_spells'])
@@ -354,6 +345,14 @@ class Server:
                 return host_id
         return None
 
+    def lookup_winner_name(self, winner_val):
+        if winner_val == Game.types['player']:
+            return 'normal'
+        elif winner_val == Game.types['zombie']:
+            return 'zombies'
+        else:
+            return 'none'
+
     def generate_player_name_character_list(self, host, fields=('user_name', 'character')):
         full_player_list = []
         for other_player_id in host['players']:
@@ -366,6 +365,15 @@ class Server:
                 full_player_list[-1]['player_id'] = other_player_id
 
         return full_player_list
+
+    def generate_room_code(self):
+        return ''.join(choices(ascii_lowercase, k=IDENTIFIER_LEN)).upper()
+
+    def join_room(self, room, sid, namespace):
+        join_room(room, sid=sid, namespace=namespace)
+
+    def leave_room(self, room, sid, namespace):
+        leave_room(room, sid=sid, namespace=namespace)
 
 server = Server(HostNamespace, ViewerNamespace, PlayerNamespace)
 server.register(socketio)
