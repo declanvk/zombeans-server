@@ -263,7 +263,7 @@ class Server:
             player_id, 'success', {
                 'room_code': room_code,
                 'character': character,
-                'is_god': "true" if character == 7 else "false"
+                'is_god': "true" if character == 1 else "false"
             }
         )
         logger.info(

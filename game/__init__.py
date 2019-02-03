@@ -12,8 +12,8 @@ class Game:
     def __init__(self, max_players = 8, min_players = 4, width = 1300.0, height = 700.0):
 
         self.starting_positions = [(-100, 0), (0, -100), (10, 0), (50, 0),
-                                   (50, 50), (-50, -50), (-50, 0), (0, -50),
-                                   (0, 40), (100, 100)]
+                                   (50, 50), (-50, -50), (700, 100), (100, 300),
+                                   (500, 500), (100, 100)]
         self.max_players = max_players
         self.min_players = min_players
         self.players = dict()
@@ -29,6 +29,7 @@ class Game:
         self.god = None
         self.time_left = Game.MAX_TICKS
         self.effects = set()
+        self.player_count = 0
 
         def turn_zombie(arbiter, space, data):
             if self.god is not None and GodAction.IMMUNE in self.god.current_actions:
@@ -42,19 +43,22 @@ class Game:
                     ended = False
             self.ended = ended
             if ended:
-                self.winner = Game.types["zombies"]
+                self.winner = Game.types["zombie"]
             return True
 
         self.zombie_collision_handler.begin = turn_zombie
         self.space.damping = 0.1
 
     def add_player(self, id):
-        if len(self.players) == 0:
+        print(id + "connected")
+        print(self.player_count)
+        if self.player_count == 0:
             self.players[id] = Player(id, self.space, self.starting_positions.pop(), self, isZombie=True)
-        if len(self.players) == 1 and self.god is None:
+        elif self.player_count == 1 and self.god is None:
             self.add_god(id)
         else:
             self.players[id] = Player(id, self.space, self.starting_positions.pop(), self)
+        self.player_count += 1
 
     def add_god(self, id):
         self.god = God(id)
