@@ -21,6 +21,7 @@ class Direction(Enum):
 
     @staticmethod
     def get(input):
+        input = input.upper()
         if input == "UP":
             return Direction.UP
         elif input == "DOWN":
@@ -42,6 +43,7 @@ class KeyAction(Enum):
 
     @staticmethod
     def get(input):
+        input = input.upper()
         if input == "PRESSED":
             return KeyAction.PRESSED
         elif input == "RELEASED":
@@ -64,10 +66,10 @@ class Game:
     TICK_TIME = .1
     MAX_TICKS = 600
 
-    def __init__(self, width=5000.0, height=5000.0):
+    def __init__(self, width= 800.0, height=1200.0):
 
         self.starting_positions = [(-100, 0), (0, -100), (10, 0), (50, 0), (50, 50), (-50, -50),
-                                   (-50, 0), (0, -50), (0, 40), (0, 10)]
+                                   (-50, 0), (0, -50), (0, 40), (100,100)]
         self.players = dict()
         self.width = width
         self.height = height
@@ -163,8 +165,6 @@ class Game:
             return data, True, winner
         else:
             return data, False, None
-
-        return data, self.ended
 
     def start(self):
         self.running = True
