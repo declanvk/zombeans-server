@@ -203,7 +203,7 @@ class Server:
 
         self.join_room(room_code, viewer_id, VIEWER_NS_ENDPOINT)
 
-        full_player_list = self.generate_player_name_character_list(host)
+        full_player_list = self.generate_player_name_character_list(host, fields=('player_id', 'user_name', 'character'))
         aux_data = {
             'current_players': full_player_list,
             'board_description': {
@@ -362,6 +362,9 @@ class Server:
                 k: self.players[other_player_id].get(k, None)
                 for k in fields
             })
+
+            if 'player_id' in fields:
+                full_player_list[-1]['player_id'] = other_player_id
 
         return full_player_list
 

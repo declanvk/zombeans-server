@@ -51,14 +51,14 @@ class KeyAction(Enum):
         else:
             raise ValueError("Input ({}) did not match any variant of KeyAction".format(input))
 
-class PlayerType(Enum):
-    NORMAL = 1
-    ZOMBIE = 2
-    GOD = 4
+class EntityType(Enum):
+    NORMAL_PLAYER = 1
+    ZOMBIE_PLAYER = 2
+    GOD_PLAYER = 4
 
     @staticmethod
     def mask(num):
-        return (PlayerType.NORMAL.value | PlayerType.ZOMBIE.value | PlayerType.GOD.value) & num
+        return (EntityType.NORMAL_PLAYER.value | EntityType.ZOMBIE_PLAYER.value | EntityType.GOD.value) & num
 
 class Game:
     MAX_VELOCITY = 5
@@ -77,14 +77,14 @@ class Game:
         self.space = pymunk.Space()
         self.add_static_scenery()
         self.zombie_collision_handler = self.space.add_collision_handler(
-            PlayerType.NORMAL.value, PlayerType.ZOMBIE.value
+            EntityType.NORMAL_PLAYER.value, EntityType.ZOMBIE_PLAYER.value
         )
         self.running = False
         self.tick_count = 0
 
         def turn_zombie(arbiter, space, data):
             player = self.players[arbiter.shapes[0].id]
-            player.shape.collision_type = PlayerType.ZOMBIE.value
+            player.shape.collision_type = EntityType.ZOMBIE_PLAYER.value
 
             return True
 
@@ -93,14 +93,14 @@ class Game:
 
     def is_ended_with_winner(self):
         zombie_win_condition = not any(
-            player.shape.collision_type == PlayerType.NORMAL.value
+            player.shape.collision_type == EntityType.NORMAL_PLAYER.value
             for player in self.players.values()
         )
         player_win_condition = self.tick_count > Game.MAX_TICKS
         if zombie_win_condition and len(self.player) > 0:
-            return True, PlayerType.ZOMBIE.value
+            return True, EntityType.ZOMBIE_PLAYER.value
         elif player_win_condition:
-            return True, PlayerType.NORMAL.value
+            return True, EntityType.NORMAL_PLAYER.value
         else:
             return False, None
 
@@ -144,7 +144,7 @@ class Game:
                 position=dict(
                     x=float(player[1].body.position[0]), y=float(player[1].body.position[1])
                 ),
-                isZombie=bool(player[1].shape.collision_type == PlayerType.ZOMBIE.value)
+                isZombie=bool(player[1].shape.collision_type == EntityType.ZOMBIE_PLAYER.value)
             )
 
         return data
@@ -178,7 +178,7 @@ class Player:
         self.shape = pymunk.Circle(self.body, Player.RADIUS)
         self.shape.density = 3
         self.space.add(self.body, self.shape)
-        self.shape.collision_type = PlayerType.NORMAL.value
+        self.shape.collision_type = EntityType.NORMAL_PLAYER.value
         self.current_accel_dirs = 0
         self.shape.id = id
 
