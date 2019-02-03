@@ -87,12 +87,21 @@ class Game:
             if code in self.god.possible_actions:
                 self.god.current_actions[code] = self.god.possible_actions[code]
                 self.god.cooldown_actions[code] = self.god.possible_actions[code]
-                self.god.possible_actions.remove(code)
+                del self.god.possible_actions[code]
 
     def cure_player(self):
+        zombie_count = 0
+        zombie_obj = None
         for obj in self.players.values():
             if obj.shape.collision_type == Game.types["zombie"]:
-                obj.shape.collision_type = Game.types["player"]
+                print(obj.id)
+                zombie_count += 1
+                zombie_obj = obj
+        if zombie_count > 1:
+            zombie_obj.shape.collision_type = Game.types["player"]
+        else:
+            self.god.possible_actions[GodAction.CURE] = self.god.cooldown_actions[GodAction.CURE]
+            del self.god.cooldown_actions[GodAction.CURE]
     # [playerId:{position:point, velocity:point, isZombie:bool}]
 
     def tick(self):
@@ -177,7 +186,7 @@ class God:
         self.possible_actions = {GodAction.FREEZE: GodAction(GodAction.FREEZE, 3, 40),
                                  GodAction.SPEED_UP: GodAction(GodAction.SPEED_UP, 2, 10),
                                  GodAction.IMMUNE: GodAction(GodAction.IMMUNE, 2, 20)}
-        self.cooldown_actions = {GodAction.CURE: GodAction(GodAction.CURE, 0, 30)}
+        self.cooldown_actions = {GodAction.CURE: GodAction(GodAction.CURE, 0, 40)}
 
     def tick(self):
         to_splice = set()
